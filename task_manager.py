@@ -36,3 +36,17 @@ class TaskManager:
                     self.save_tasks()
                     return True
                 return False
+
+            def mark_completed(self, task_id):
+                for task in self.tasks:
+                    if task.task_id == task_id:
+                        task.is_done = True
+                        self.save_tasks()
+                        self.delete_task(task_id)
+                        return True
+                return False
+
+            def get_sorted_tasks(self, sort_by='priority'):
+                if sort_by == 'priority':
+                    return sorted(self.tasks, key=lambda x: x.priority)
+                return sorted(self.tasks, key=lambda x: x.created_at)
