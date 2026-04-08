@@ -20,7 +20,8 @@ class TaskManager:
 
     def save_tasks(self):
         with open(self.filename, 'w', encoding='utf-8') as f:
-            json.dump([task.to_dict() for task in self.tasks], f, ensure_ascii=False, indent=4)
+            json.dump([task.to_dict() for task in self.tasks],
+                      f, ensure_ascii=False, indent=4)
 
     def add_task(self, description, priority):
         new_id = max([t.task_id for t in self.tasks], default=0) + 1

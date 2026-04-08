@@ -4,15 +4,18 @@ import json
 from task import Task
 from task_manager import TaskManager
 
+
 @pytest.fixture
 def temp_task_file(tmp_path):
     """фікстура для тимчасових файлів."""
     return str(tmp_path / "test_tasks.json")
 
+
 @pytest.fixture
 def empty_task_manager(temp_task_file):
     """фіктсура для таск менеджера пустого."""
     return TaskManager(filename=temp_task_file)
+
 
 @pytest.fixture
 def populated_task_manager(empty_task_manager):
@@ -24,11 +27,18 @@ def populated_task_manager(empty_task_manager):
 
 
 # Parametrization for Task initialization and parsing
-@pytest.mark.parametrize("task_id, description, priority, created_at, is_done", [
-    (1, "First task", 1, "2026-01-01 10:00:00", False),
-    (2, "Second task", 2, "2026-01-02 11:00:00", True),
-])
-def test_task_to_from_dict(task_id, description, priority, created_at, is_done):
+@pytest.mark.parametrize(
+    "task_id, description, priority, created_at, is_done", [
+        (1, "First task", 1, "2026-01-01 10:00:00", False),
+        (2, "Second task", 2, "2026-01-02 11:00:00", True),
+    ]
+)
+def test_task_to_from_dict(
+        task_id,
+        description,
+        priority,
+        created_at,
+        is_done):
     """Test stringification, serialization and deserialization of Task."""
     task = Task(task_id, description, priority, created_at, is_done)
     task_dict = task.to_dict()
@@ -63,12 +73,18 @@ def test_add_task(empty_task_manager):
         assert data[0]['description'] == "A new task"
 
 
-@pytest.mark.parametrize("task_id_to_delete, expected_result, expected_count", [
-    (1, True, 2),  # Deletes Task 1, leaves 2
-    (2, True, 2),  # Deletes Task 2, leaves 2
-    (999, False, 3), # Not found, leaves 3
-])
-def test_delete_task(populated_task_manager, task_id_to_delete, expected_result, expected_count):
+@pytest.mark.parametrize(
+    "task_id_to_delete, expected_result, expected_count", [
+        (1, True, 2),  # Deletes Task 1, leaves 2
+        (2, True, 2),  # Deletes Task 2, leaves 2
+        (999, False, 3),  # Not found, leaves 3
+    ]
+)
+def test_delete_task(
+        populated_task_manager,
+        task_id_to_delete,
+        expected_result,
+        expected_count):
     """Test deleting tasks by various IDs."""
     result = populated_task_manager.delete_task(task_id_to_delete)
 
@@ -77,12 +93,16 @@ def test_delete_task(populated_task_manager, task_id_to_delete, expected_result,
 
     if expected_result:
         # Verify it was completely removed
-        assert not any(t.task_id == task_id_to_delete for t in populated_task_manager.tasks)
+        assert not any(
+            t.task_id == task_id_to_delete
+            for t in populated_task_manager.tasks
+        )
 
 
 def test_mark_completed(populated_task_manager):
     """Test marking a task as completed."""
-    # Based on the implementation, mark_completed deletes the task after saving it as completed.
+    # Based on the implementation, mark_completed deletes the task after
+    # saving it as completed.
     result = populated_task_manager.mark_completed(1)
 
     assert result is True
@@ -91,8 +111,10 @@ def test_mark_completed(populated_task_manager):
 
 
 @pytest.mark.parametrize("sort_by, expected_id_order", [
-    ('priority', [2, 3, 1]), # Priorities are 1, 2, 3 -> corresponding IDs are 2, 3, 1
-    ('created_at', [1, 2, 3]), # Created sequentially -> corresponding IDs are 1, 2, 3
+    # Priorities are 1, 2, 3 -> corresponding IDs are 2, 3, 1
+    ('priority', [2, 3, 1]),
+    # Created sequentially -> corresponding IDs are 1, 2, 3
+    ('created_at', [1, 2, 3]),
 ])
 def test_get_sorted_tasks(populated_task_manager, sort_by, expected_id_order):
     """Test sorting tasks by priority or creation time."""
